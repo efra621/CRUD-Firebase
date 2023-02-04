@@ -1,5 +1,6 @@
 package com.gratum.crudfirebase
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -9,6 +10,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import java.io.ByteArrayOutputStream
 
 class ProductViewModel : ViewModel() {
 
@@ -99,26 +101,35 @@ class ProductViewModel : ViewModel() {
             }
     }
 
-    fun uploadImageToFirebase(urlImage: Uri): Uri? {
+    fun uploadImageToFirebase(product: Product) {
+
         initStorageRef()
 
-        var uriRef: String? = null
-        var downloadUri: Uri? = null
 
         storageRef.getReference("images").child(System.currentTimeMillis().toString())
-            .putFile(urlImage).addOnSuccessListener { task ->
+            .putFile(Uri.parse(product.urlImage)).addOnSuccessListener { task ->
                 task.metadata!!.reference!!.downloadUrl
-                    .addOnSuccessListener {task2->
-                        downloadUri = task2
-                    }
                     .addOnFailureListener {
-                        uriRef = null
-                        Log.d("Referencia Url rechazada", "$uriRef")
+                    }
+                    .addOnCompleteListener { task2 ->
+                        if (task2.isSuccessful) {
+                            if (product.id != null) {
+                                product.urlImage = task2.result.toString()
+                                update(product)
+                            } else {
+                                product.urlImage = task2.result.toString()
+                                create(product)
+                            }
+                            //Cuando se complete la subida
+                        } else {
+                            //Cuando se produce un error
+                        }
+
                     }
 
 
             }
-        Log.d("referencia", "${uriRef.toString()}")
-        return downloadUri
+
+
     }
 }

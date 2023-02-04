@@ -23,13 +23,14 @@ import java.io.InputStream
 
 class MainActivity : AppCompatActivity(), ProductAdapter.OnItemClickListener {
 
-    private lateinit var uri:Uri
+    private lateinit var uri: Uri
 
     val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { it ->
         if (it != null) {
             //Imagen seleccionada
             binding.imageView.setImageURI(it)
             uri = it
+
             Toast.makeText(this, "Imagen seleccionada", Toast.LENGTH_SHORT).show()
         } else {
             //No imagen
@@ -130,23 +131,19 @@ class MainActivity : AppCompatActivity(), ProductAdapter.OnItemClickListener {
     //Crear document
     private fun create() {
 
-        val urlFirebase = productViewModel.uploadImageToFirebase(uri).toString()
-
+        //val urlFirebase = productViewModel.uploadImageToFirebase(uri).toString()
 
         val product = Product(
             selected.id,
             binding.name.text.toString(),
             binding.price.text.toString().toDouble(),
             binding.description.text.toString(),
-            urlImage = urlFirebase
+            urlImage = uri.toString()
         )
-        if (product.id != null) {
-            productViewModel.update(product)
-        } else {
 
-            productViewModel.create(product)
-        }
+        productViewModel.uploadImageToFirebase(product)
     }
+
 
     private fun resetText() {
         selected = Product()
