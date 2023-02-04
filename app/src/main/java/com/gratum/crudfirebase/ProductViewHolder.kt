@@ -3,21 +3,17 @@ package com.gratum.crudfirebase
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.gratum.crudfirebase.databinding.ItemProductBinding
 
 class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    private val nameText: TextView = itemView.findViewById(R.id.nameText)
-    private val priceText: TextView = itemView.findViewById(R.id.priceText)
-    private val descriptionText: TextView = itemView.findViewById(R.id.descriptionText)
-    private val createDateText: TextView = itemView.findViewById(R.id.createDateText)
-    private val updateDateText: TextView = itemView.findViewById(R.id.updateDateText)
+    private val binding = ItemProductBinding.bind(itemView)
 
     fun bindItem(product: Product) {
         itemView.apply {
-            nameText.text = product.name
-            priceText.text = "${product.price} Bath"
-            descriptionText.text = product.description
-            //     createDateText.text = product.create_date!!.toDate().toString()
+            binding.nameText.text = product.name
+            binding.priceText.text = "${product.price} Bath"
+            binding.descriptionText.text = product.description
         }
     }
 }

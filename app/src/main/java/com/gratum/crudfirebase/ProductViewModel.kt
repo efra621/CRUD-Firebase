@@ -7,7 +7,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.security.Timestamp
 
-class ProductViewModel: ViewModel() {
+class ProductViewModel : ViewModel() {
 
     private var db = Firebase.firestore
     private val products = "products"
@@ -40,43 +40,49 @@ class ProductViewModel: ViewModel() {
 
     fun update(product: Product) {
         val docRef = db.collection(products)
-        docRef.document(product.id!!).update(product.toMap()).addOnSuccessListener {
-            updateLiveData.postValue(true)
-        }.addOnFailureListener {
-            Log.d("update", it.localizedMessage!!)
-            updateLiveData.postValue(false)
-        }
+        docRef.document(product.id!!).update(product.toMap())
+            .addOnSuccessListener {
+                updateLiveData.postValue(true)
+            }
+            .addOnFailureListener {
+                Log.d("update", it.localizedMessage!!)
+                updateLiveData.postValue(false)
+            }
     }
 
     fun delete(id: String) {
         val docRef = db.collection(products)
-        docRef.document(id).delete().addOnSuccessListener {
-            deleteLiveData.postValue(true)
-        }.addOnFailureListener {
-            Log.d("delete", it.localizedMessage!!)
-            deleteLiveData.postValue(false)
-        }
+        docRef.document(id).delete()
+            .addOnSuccessListener {
+                deleteLiveData.postValue(true)
+            }
+            .addOnFailureListener {
+                Log.d("delete", it.localizedMessage!!)
+                deleteLiveData.postValue(false)
+            }
     }
 
     fun getList() {
         val docRef = db.collection(products)
-        docRef.get().addOnSuccessListener {
-            val products = ArrayList<Product>()
-            for (item in it.documents) {
-                val product = Product()
-                product.id = item.id
-                product.name = item.data!!["name"] as String?
-                product.price = item.data!!["price"] as Double?
-                product.description = item.data!!["description"] as String?
+        docRef.get()
+            .addOnSuccessListener {
+                val products = ArrayList<Product>()
+                for (item in it.documents) {
+                    val product = Product()
+                    product.id = item.id
+                    product.name = item.data!!["name"] as String?
+                    product.price = item.data!!["price"] as Double?
+                    product.description = item.data!!["description"] as String?
 //                product.create_date = item.data!!["create_date"] as Timestamp?
-            //    product.update_date = item.data!!["update_date"] as Timestamp?
-                products.add(product)
-            }
+                    //    product.update_date = item.data!!["update_date"] as Timestamp?
+                    products.add(product)
+                }
 
-            getListLiveData.postValue(products)
-        }.addOnFailureListener {
-            Log.d("get", it.localizedMessage!!)
-            getListLiveData.postValue(null)
-        }
+                getListLiveData.postValue(products)
+            }
+            .addOnFailureListener {
+                Log.d("get", it.localizedMessage!!)
+                getListLiveData.postValue(null)
+            }
     }
 }

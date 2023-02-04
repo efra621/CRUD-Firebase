@@ -32,23 +32,12 @@ class MainActivity : AppCompatActivity(), ProductAdapter.OnItemClickListener {
         initViewModel()
     }
 
-    //Holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-
     private fun initElement() {
-//        name = findViewById(R.id.name)
-//        price = findViewById(R.id.price)
-//        description = findViewById(R.id.description)
-//        submit = findViewById(R.id.submit)
-//        rvList = findViewById(R.id.rvList)
 
         binding.submit.setOnClickListener {
             create()
         }
-
         list = ArrayList()
-
-//        submit.setOnClickListener {
-//        }
 
         // Get list
         productViewModel.getList()
@@ -129,9 +118,6 @@ class MainActivity : AppCompatActivity(), ProductAdapter.OnItemClickListener {
 
     override fun onClick(item: Product, position: Int) {
         selected = item
-
-        //  selected.update_date = Timestamp.now()
-
         binding.name.setText(selected.name)
         binding.price.setText(selected.price.toString())
         binding.description.setText(selected.description)
