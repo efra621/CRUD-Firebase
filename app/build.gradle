@@ -57,6 +57,7 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.5.5"
 
     //Firebase
+    implementation 'com.google.firebase:firebase-storage-ktx:20.1.0'
     implementation 'com.google.firebase:firebase-firestore-ktx:24.4.1'
     implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
 

@@ -10,7 +10,7 @@ data class Product(
     var name: String? = null,
     var price: Double? = null,
     var description: String? = null,
-
+    var urlImage: String? = null
 ){
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -19,6 +19,7 @@ data class Product(
             "name" to name,
             "price" to price,
             "description" to description,
+            "urlImage" to urlImage
         )
     }
 }

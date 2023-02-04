@@ -1,16 +1,41 @@
 package com.gratum.crudfirebase
 
-import androidx.appcompat.app.AppCompatActivity
+import android.app.PendingIntent.getActivity
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.Timestamp
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.gratum.crudfirebase.databinding.ActivityMainBinding
+import java.io.ByteArrayOutputStream
+import java.io.FileNotFoundException
+import java.io.InputStream
+
 
 class MainActivity : AppCompatActivity(), ProductAdapter.OnItemClickListener {
+
+    private lateinit var uri:Uri
+
+    val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { it ->
+        if (it != null) {
+            //Imagen seleccionada
+            binding.imageView.setImageURI(it)
+            uri = it
+            Toast.makeText(this, "Imagen seleccionada", Toast.LENGTH_SHORT).show()
+        } else {
+            //No imagen
+            Toast.makeText(this, "Imagen No seleccionada", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private lateinit var binding: ActivityMainBinding
 
@@ -30,6 +55,13 @@ class MainActivity : AppCompatActivity(), ProductAdapter.OnItemClickListener {
 
         initElement()
         initViewModel()
+        uploadImage()
+    }
+
+    private fun uploadImage() {
+        binding.imageView.setOnClickListener {
+            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
     }
 
     private fun initElement() {
@@ -95,16 +127,23 @@ class MainActivity : AppCompatActivity(), ProductAdapter.OnItemClickListener {
         productAdapter.notifyDataSetChanged()
     }
 
+    //Crear document
     private fun create() {
+
+        val urlFirebase = productViewModel.uploadImageToFirebase(uri).toString()
+
+
         val product = Product(
             selected.id,
             binding.name.text.toString(),
             binding.price.text.toString().toDouble(),
             binding.description.text.toString(),
+            urlImage = urlFirebase
         )
         if (product.id != null) {
             productViewModel.update(product)
         } else {
+
             productViewModel.create(product)
         }
     }
@@ -126,4 +165,22 @@ class MainActivity : AppCompatActivity(), ProductAdapter.OnItemClickListener {
     override fun onDelete(item: Product, position: Int) {
         productViewModel.delete(item.id!!)
     }
+//
+//    fun uploadImageToFirebase(uri: Uri): String? {
+//        productViewModel.initStorageRef()
+//        var uriRef: String? = null
+//        storageRef.getReference("images").child(System.currentTimeMillis().toString())
+//            .putFile(uri).addOnSuccessListener { task ->
+//                task.metadata!!.reference!!.downloadUrl
+//                    .addOnSuccessListener {it->
+//                        uriRef = it.toString()
+//                        Toast.makeText(this,"Se envio", Toast.LENGTH_SHORT).show()
+//                    }
+//                    .addOnFailureListener{
+//                        uriRef = null
+//                        Toast.makeText(this,"Fallo", Toast.LENGTH_SHORT).show()
+//                    }
+//            }
+//        return uriRef
+//    }
 }

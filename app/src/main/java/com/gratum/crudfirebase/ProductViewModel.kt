@@ -1,16 +1,24 @@
 package com.gratum.crudfirebase
 
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import java.security.Timestamp
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 
 class ProductViewModel : ViewModel() {
 
     private var db = Firebase.firestore
     private val products = "products"
+    private var storageRef = Firebase.storage
+
+    fun initStorageRef() {
+        storageRef = FirebaseStorage.getInstance()
+    }
 
     val createLiveData: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
@@ -30,12 +38,17 @@ class ProductViewModel : ViewModel() {
 
     fun create(product: Product) {
         val docRef = db.collection(products)
-        docRef.add(product.toMap()).addOnSuccessListener {
-            createLiveData.postValue(true)
-        }.addOnFailureListener {
-            Log.d("create", it.localizedMessage!!)
-            createLiveData.postValue(false)
-        }
+
+        docRef.add(product.toMap())
+            .addOnSuccessListener {
+                createLiveData.postValue(true)
+            }
+            .addOnFailureListener {
+                Log.d("create", it.localizedMessage!!)
+                createLiveData.postValue(false)
+            }
+
+
     }
 
     fun update(product: Product) {
@@ -84,5 +97,28 @@ class ProductViewModel : ViewModel() {
                 Log.d("get", it.localizedMessage!!)
                 getListLiveData.postValue(null)
             }
+    }
+
+    fun uploadImageToFirebase(urlImage: Uri): Uri? {
+        initStorageRef()
+
+        var uriRef: String? = null
+        var downloadUri: Uri? = null
+
+        storageRef.getReference("images").child(System.currentTimeMillis().toString())
+            .putFile(urlImage).addOnSuccessListener { task ->
+                task.metadata!!.reference!!.downloadUrl
+                    .addOnSuccessListener {task2->
+                        downloadUri = task2
+                    }
+                    .addOnFailureListener {
+                        uriRef = null
+                        Log.d("Referencia Url rechazada", "$uriRef")
+                    }
+
+
+            }
+        Log.d("referencia", "${uriRef.toString()}")
+        return downloadUri
     }
 }
